@@ -1,0 +1,55 @@
+/* ########################################################## GENERALITES ### */
+html { margin: 20px; }
+body { background-color: #333; color: #FFF; font-family: "Verdana"; font-size: 12px; }
+a, a:visited { color: #69c; }
+a:hover { color: #9cf; }
+h1 {margin-bottom: 40px}
+
+/* ############################################################### UPLOAD ### */
+/* bloc d'info sur les fichiers chargéss */
+aside {
+	position: absolute;
+	right: 28px;
+	top: 5px;
+	width: 30%;
+	height: 85px;
+	border: 1px inset white;
+	padding: 5px;
+	display: none;
+	overflow-y: auto;
+}
+
+#drop_zone { 
+	border: 1px dashed #999; 
+	text-align: center; 
+	padding: 80px 0;
+}
+#drop_result { display: block; }
+#load_result { display: block; color: #ffec00; margin-bottom: 20px; }
+#list_of_files { text-align: left; list-style-type: disc; }
+
+/* added and removed by js to highlight the drop zone on dragenter and dragleave events */
+.dragged {
+	border: 1px solid #CCC !important;
+	
+	-webkit-box-shadow: 0px 0px 15px #CCC;
+	   -moz-box-shadow: 0px 0px 15px #CCC;
+	        box-shadow: 0px 0px 15x #CCC;
+}
+
+/* #################################################### GRAPHIQUE - LISTE ### */
+#chart_container { margin: auto; }
+#chart { text-align: left; }
+#search th { text-align: right; }
+#search_count { color: #ffec00; font-weight: normal; padding-right: 10px; }
+#log_list td.qs { overflow: hidden; }
+
+/* ################################################################# CODE ### */
+code { background-color: #444; padding: 3px; }
+pre,code,.code { white-space: pre; color: #AAA; font-size: 11px; line-height: 16px; font-family: monospace }
+pre.code { border: 1px solid #AAA; margin: 10px 0px; padding: 5px; }
+pre span.sql_keyword { color: darkmagenta; font-weight: bold; }
+
+/* ############################################################### DIVERS ### */
+p.credits { text-align: center; color: #999; }
+

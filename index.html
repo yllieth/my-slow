@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>MySQL Slow Query Log Visualizer</title>
+		
+        <link rel="stylesheet" href="css/style.css">
+		<script src="js/script_v2.js"></script>
+	</head>
+	<body onload="setListeners();">
+        <h1>MySQL Slow Query Log Visualizer</h1>
+		
+		<aside id="fileInfos"></aside>
+		
+		<div id="file_zone">
+			<section style="width: 48%; display: inline-block; vertical-align: top; padding-right: 10px; border-right: 1px solid #999;">
+				<h2>Upload a log file from your computer.</h2>
+				<div id="upload">
+					<div id="drop_zone">Drop your file(s) here</div>
+					Or simply find the log file on your computer : 
+					<input type="file" id="files" name="files[]" multiple />
+				</div>
+			</section>
+
+			<section style="width: 48%; display: inline-block; vertical-align: top; padding-left: 10px;">
+				<div style="padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #999;">
+					<h2>Use a log file on your server.</h2>
+					<form onsubmit="javascript:ajax_getList();return false;">
+						<div>
+							Look for files in : 
+							<input type='text' size='30' placeholder='/var/log/mysql/' id="remote_path"/>
+							<input type='submit' value='Search' />
+						</div>
+					</form>
+					
+					<div id="select_files"></div>
+				</div>
+			</section>
+<!--
+			<h2 style='margin-top: 100px'>Parsing notes</h2>
+			<div>In order to be successfully parsed, your log file must looks like the following example :</div>
+
+			<pre class="code" style="max-height: 190px; overflow-y: auto;">
+/usr/sbin/mysqld, Version: 5.0.51a-24+lenny5-log ((Debian)). started with:------------------+
+Tcp port: 3306  Unix socket: /var/run/mysqld/mysqld.sock                                    | ignored
+Time                 Id Command    Argument-------------------------------------------------+
+# Time: 130421  6:26:29---------------------------------------------------------------------+
+# User@Host: coocoonhomev2[coocoonhomev2] @ localhost []                                    | first
+# Query_time: 3  Lock_time: 0  Rows_sent: 5  Rows_examined: 2778396                         | query
+SELECT * FROM table AS t WHERE id > 4 AND id < 8 GROUP BY id ORDER BY id DESC LIMIT 3;------+
+# Time: 130421  6:45:32---------------------------------------------------------------------+
+# User@Host: coocoonhomev2[coocoonhomev2] @ localhost []                                    |
+# Query_time: 7  Lock_time: 0  Rows_sent: 0  Rows_examined: 0                               | second
+use otherDatabase;                                                                          |
+COMMIT;-------------------------------------------------------------------------------------+
+# User@Host: coocoonhomev2[coocoonhomev2] @ localhost []------------------------------------+
+# Query_time: 7  Lock_time: 0  Rows_sent: 0  Rows_examined: 0                               | third
+COMMIT;-------------------------------------------------------------------------------------+
+# User@Host: coocoonhomev2[coocoonhomev2] @ localhost []------------------------------------+
+# Query_time: 7  Lock_time: 0  Rows_sent: 0  Rows_examined: 0                               | fourth
+COMMIT;-------------------------------------------------------------------------------------+
+# Time: 130421  7:26:29---------------------------------------------------------------------+
+# User@Host: coocoonhomev2[coocoonhomev2] @ localhost []                                    | fifth
+# Query_time: 3  Lock_time: 0  Rows_sent: 5  Rows_examined: 2778396                         | query
+SELECT * FROM table AS t WHERE id > 4 AND id < 8 GROUP BY id ORDER BY id DESC LIMIT 3;------+
+...</pre>
+
+			<div>
+				<ul>
+					<li>Slow queries blocks are delimited by the <code># Time:</code> tag.</li>
+					<li>The datetime format in the <code># Time:</code> line is <tt>yymmdd hh:mm:ss</tt> like <tt>130422 22:54:21</tt> ou <tt>130522  1:23:45</tt>.</li>
+					<li>The database name is extracted from <code># User@Host: mysqlusername[<u>database</u>] @ mysqlhostname []</code>.</li>
+					<li>Any information before the very first <code>#Time:</code> will be ignored (the 3 first lines in the previous example).</li>
+				</ul>
+			</div>
+-->		
+		</div>
+		
+		
+		<div id="graph_zone"></div>
+	</body>
+</html>
