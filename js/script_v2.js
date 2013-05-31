@@ -133,11 +133,11 @@ function checkMulitpleQueries(queries, date, index)
 	} else {
 		var d_year  = (date.getFullYear()-2000).toString();	// 2013 - 2000 = 13
 		var d_month = (date.getMonth() < 10) 
-		? "0" + (date.getMonth() + 1).toString()
-		: (date.getMonth() + 1).toString();	// {0-11}
+			? "0" + (date.getMonth() + 1).toString()
+			: (date.getMonth() + 1).toString();				// {0-11}
 		var d_day   = (date.getDate() < 10) 
-		? "0" + (date.getDate()).toString()
-		: (date.getDate()).toString();;		// {1-31}
+			? "0" + (date.getDate()).toString()
+			: (date.getDate()).toString();;					// {1-31}
 		var d_hour  = date.getHours().toString();			// {0-23}
 		var d_mins  = date.getMinutes().toString();			// {0-59}
 		var d_sec   = date.getSeconds().toString();			// {0-59}
@@ -352,6 +352,55 @@ function graphEntriesFrom(f)
 	g_points.setAttribute('transform', 'scale(' + xscale + ' ' + yscale + ')');
 }
 
+// ------------------------------------------------------------------- LISTE ---
+
+/**
+ * Affiche les informations détaillées des requêtes.
+ * 
+ * Structure de <code>logdata</code> : 
+ * <ul>
+ *  <li><code>.date</code> : (string) <i>Date au format yyyy/mm/dd hh:mm</i></li>
+ *  <li><code>.hour</code> : (string) <i>Heure hh</i></li>
+ *  <li><code>.dateObj</code> : (Date) <i>Objet de type Date</i></li>
+ *  <li><code>.db_name</code> : (string) <i>Nom de la base de donnée sur laquelle a été exécuté la requête</i></li>
+ *  <li><code>.query_time</code> : (string) <i>Durée (en secondes) d'exécution de la requête</i></li>
+ *  <li><code>.lock_time</code> : (string) <i>Attente (en secondes) avant l'obtention du verrou qui a permis l'exécution de la requête</i></li>
+ *  <li><code>.rows_sent</code> : (string) <i>Nombre de ligne qui composent le résultat de la requête</i></li>
+ *  <li><code>.rows_examined</code> : (string) <i>Nombre de ligne parcourues pendant l'exécution de la requête</i></li>
+ *  <li><code>.query_string</code> : (string) <i>Requête SQL (mise en forme par format_query())</i></li>
+ * </ul>
+ * 
+ * @returns {void} met à jour la div <code>liste_zone</code>
+ */
+function printEntries()
+{
+	var table = document.createElement('table');
+	var head  = table.insertRow(0);
+		head.innerHTML = "<th>Date</th><th>Query time (s)</th><th>Lock time (s)</th><th>Rows sent</th><th>Rows examined</th><th>Database</th><th>Slow query</th>";
+		table.appendChild(head);
+	for (var i = 0 ; i < logdata.length ; i++) {
+		var line = table.insertRow(i + 1);
+		var date = line.insertCell(0);		
+			date.innerHTML = "<b>" + logdata[i].date + "</b>";
+		var qt = line.insertCell(1);		
+			qt.innerHTML = logdata[i].query_time;
+		var lt = line.insertCell(2);		
+			lt.innerHTML = logdata[i].lock_time;
+		var rs = line.insertCell(3);		
+			rs.innerHTML = logdata[i].rows_sent;
+		var re = line.insertCell(4);		
+			re.innerHTML = str_split(logdata[i].rows_examined, -3);
+		var db = line.insertCell(5);		
+			db.innerHTML = logdata[i].db_name;
+		var qs = line.insertCell(6);		
+			qs.innerHTML = "<pre>" + logdata[i].query_string + "</pre>";
+		
+		table.appendChild(line);
+	}
+	
+	document.getElementById('liste_zone').appendChild(table);
+}
+
 // -------------------------------------------------------------------- MISC ---
 
 /**
@@ -434,6 +483,9 @@ function init()
 	
 	// clear previous graph
 	document.getElementById('graph_zone').innerHTML = "";
+	
+	// clear previous liste
+	document.getElementById('liste_zone').innerHTML = "";
 }
 
 // ------------------------------------------------------------ LOCAL UPLOAD ---
@@ -495,6 +547,7 @@ function handleFile(files)
 					processLog();
 					plots.push({file: f.name, datas: plot()});
 					graphEntriesFrom(f);
+					printEntries();
 				}
 			};
 		})(f);

@@ -38,17 +38,18 @@ aside {
 }
 
 /* #################################################### GRAPHIQUE - LISTE ### */
-#chart_container { margin: auto; }
-#chart { text-align: left; }
-#search th { text-align: right; }
-#search_count { color: #ffec00; font-weight: normal; padding-right: 10px; }
-#log_list td.qs { overflow: hidden; }
+#liste_zone { margin: 20px 0px; border: 1px solid #666; }
+#liste_zone table { border-collapse: collapse; width: 100% }
+#liste_zone table tr th { min-width: 100px; text-align: center; border-bottom: 1px solid #666; }
+#liste_zone table tr td { min-width: 110px; text-align: center }
+#liste_zone table td:first-child { width: 50px; text-align: left }
+#liste_zone table td:last-child  { width: auto; text-align: left }
 
 /* ################################################################# CODE ### */
 code { background-color: #444; padding: 3px; }
 pre,code,.code { white-space: pre; color: #AAA; font-size: 11px; line-height: 16px; font-family: monospace }
 pre.code { border: 1px solid #AAA; margin: 10px 0px; padding: 5px; }
-pre span.sql_keyword { color: darkmagenta; font-weight: bold; }
+pre span.sql_keyword { color: darkmagenta; font-weight: bold; font-size: 12px }
 
 /* ############################################################### DIVERS ### */
 p.credits { text-align: center; color: #999; }
