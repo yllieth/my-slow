@@ -1,27 +1,54 @@
 README
 ======
 
-**Toujours en phase de développement.**
+Cette application parse un fichier de log de `slow-queries` généré par MySQL et affiche :
+* un graphique permettant de visualier le nombre de requêtes longues par jour
+* une liste détaillant les requêtes incriminées
 
-Basé sur `https://code.google.com/p/mysql-slow-query-log-visualizer/`
+Elle est basée sur [https://code.google.com/p/mysql-slow-query-log-visualizer/](https://code.google.com/p/mysql-slow-query-log-visualizer/).
+Les différences par rapport à ce projet de base sont :
+* la possibilité de lire un fichier sur le serveur sur lequel l'application est installée (et non uniquement depuis un fichier local)
+* des corrections du parser
+* la possibilité de parser plusieurs fichiers
+* la coloration syntaxique et l'indentation des requêtes longues
 
-Technologies
+![](img/preview.png?raw=true)
+
+Installation
 ------------
 
-* HTML5
-	* Drag & Drop
-	* XMLHTTPRequest
-	* FileAPI
-	* svg
-* CSS3
-	* box-shadow
+Pour utiliser cette application sur votre serveur, il suffit de 
 
-La partie JS n'utilise pas `jQuery`.
+* télécharger les sources dans un dossier accessible par votre serveur web `git clone git://github.com/yllieth/my-slow.git /document-root/your-path`
+* accéder à l'application
+	* `/document-root/your-path/index.html`
+	* `/document-root/your-path/index.html?remote_path=/var/log/mysql` pour pré-remplir le chemin du dossier où se trouvent les fichiers de log à analyser sur une serveur distant
 
-Compatibilité
--------------
+Notes de développement
+----------------------
 
-* développé avec Chromium (Version 25.0.1364.160 Ubuntu 13.04 (25.0.1364.160-0ubuntu3))
+**Toujours en phase de développement.**
 
-* testé fonctionnel sur les navigateurs suivants :
-	* 
+# Technologies
+
+* [HTML5] `Drag & Drop` pour l'upload des fichiers de log
+* [HTML5] `XmlHttpRequest` pour récupérer les fichiers de log
+* [HTML5] `FileAPI` pour la lecture des fichiers
+* [HTML5] `svg` pour le dessin du graph
+* [CSS3]  box-shadow
+
+Le code javascript ne fait aucune référence à la bibliothèque `JQuery`
+
+# Compatibilité
+
+Cette application est testée fonctionnelle sur les navigateurs suivants :
+* Chromium (Version 25.0.1364.160 Ubuntu 13.04 (25.0.1364.160-0ubuntu3))
+* Chrome (Version 27.0.1453.93)
+
+# TODO list
+
+* Améliorer la compatibilité entre les navigateurs
+* Afficher les échelles du graphique
+* Trier la liste
+* Tester le format du fichier donné à parser AVANT de le lire en entier
+* Gestion des erreurs
