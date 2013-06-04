@@ -48,7 +48,7 @@ aside {
 
 /* ################################################################# CODE ### */
 /* Style du code source */
-code { 
+code, .code { 
 	width: 100%;
 	color: #AAA;					/* texte en gris clair */
 	font-size: 11px;				/* texte en plus petit */
