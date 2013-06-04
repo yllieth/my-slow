@@ -159,9 +159,6 @@ function checkMulitpleQueries(queries, date, index)
 			
 			// added built string to the gloabl array of slow queries
 			logdata.splice(index + 1, 0, added_query);
-			
-			// update progress bar
-			document.getElementById('parse_progress').setAttribute('max', logdata.length);
 		}
 	}
 	
@@ -233,9 +230,6 @@ function processLog()
 		
 		// add formatted query tou the list
 		logdata[i].query_string = format_query(query_string);
-        
-		// update progress bar
-		document.getElementById('parse_progress').setAttribute('value', i + 1);
     }
 }
 
@@ -427,8 +421,7 @@ function updateInfosBlock()
 				 + "<tr><td>Files :   </td><td>" + totalFiles + "</td></tr>"
 				 + "<tr><td>Size :    </td><td>" + str_split(totalSize.toString(),-3).join(' ') + " Bytes</td></tr>"
 				 + "<tr><td>Entries : </td><td>" + str_split(totalEntries.toString(),-3).join(' ') + "</td></tr>"
-				 + "</table><br/>"
-				 + "Parsing progress : <progress id='parse_progress' min='0' value='0' max='" + totalEntries + "'></progress>";
+				 + "</table>"
 }
 
 /**
