@@ -43,13 +43,25 @@ aside {
 #liste_zone table tr th { min-width: 100px; text-align: center; border-bottom: 1px solid #666; }
 #liste_zone table tr td { min-width: 110px; text-align: center }
 #liste_zone table td:first-child { width: 50px; text-align: left }
-#liste_zone table td:last-child  { width: auto; text-align: left }
+#liste_zone table td:last-child  { text-align: left }
+#liste_zone table tr:nth-child(odd) { background-color: #3B3B3B }
 
 /* ################################################################# CODE ### */
-code { background-color: #444; padding: 3px; }
-pre,code,.code { white-space: pre; color: #AAA; font-size: 11px; line-height: 16px; font-family: monospace }
-pre.code { border: 1px solid #AAA; margin: 10px 0px; padding: 5px; }
-pre span.sql_keyword { color: darkmagenta; font-weight: bold; font-size: 12px }
+/* Style du code source */
+code { 
+	width: 100%;
+	color: #AAA;					/* texte en gris clair */
+	font-size: 11px;				/* texte en plus petit */
+	line-height: 16px;				/* texte plus aéré */
+	font-family: monospace;			/* force l'utilisation d'une police à chasse fixe */
+}
+
+/* Style des mots clef du code source */
+code span.sql_keyword { 
+	color: yellowgreen;
+	font-weight: bold; 
+	font-size: 12px
+}
 
 /* ############################################################### DIVERS ### */
 p.credits { text-align: center; color: #999; }

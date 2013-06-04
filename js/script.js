@@ -2,7 +2,7 @@
 var logdata;
 var timedata;
 var dayNames;
-var keywordsInLine;
+var keywords;
 var keywordsNewLine;
 var totalFiles;
 var totalSize;
@@ -70,19 +70,32 @@ function str_split(string, split_length)
  */
 function format_query(sql_string)
 {
-	// colorize keywords
-	for (var j = 0 ; j < keywordsInLine.length ; j++) {
-		sql_string = sql_string.replace(new RegExp(keywordsInLine[j], "g"), "<span class=\"sql_keyword\">" + keywordsInLine[j] + "</span>");
-	}
+	// remove existants <br>
+	sql_string = sql_string.replace(new RegExp("(<br/>)|(\n)", "g"), " ");
+	
+	// SQL keyworks
+	var keywords  = [
+		'SELECT', 'UPDATE', 'INSERT', 'ALTER', 'DELETE', 'NULL',
+		'FROM', 'WHERE', 'AND', 'INNER', 'LEFT', 'ORDER', 'LIMIT', 'SET', 'GROUP',
+		'ASC', 'JOIN', 'COMMIT', 'USE', 'BY', 'DESC', 'HAVING', 'COUNT', 'DISTINCT',
+		'OR', 'IN', 'IS', 'AS', 'ON'
+	];
+	
+	// SQL keyworks which must be indented
+	var keywordsNewLine = ['FROM', 'WHERE', 'AND', 'OR', 'INNER', 'LEFT', 'ORDER', 'LIMIT', 'SET', 'GROUP'];
 	
 	// colorize and indent wekwords
 	for (var j = 0 ; j < keywordsNewLine.length ; j++) {
-		sql_string = sql_string.replace(new RegExp(keywordsNewLine[j], "g"), "<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"sql_keyword\">" + keywordsNewLine[j] + "</span>");
+		sql_string = sql_string.replace(new RegExp(keywordsNewLine[j], "g"), "<br/>&nbsp;&nbsp;&nbsp;&nbsp;" + keywordsNewLine[j]);
 	}
 	
-	// remove useless <br>
-	sql_string = sql_string.replace(new RegExp("^(<br/>)*"), '');
-	sql_string = sql_string.replace(new RegExp("(<br/>)*$"), '');
+	// colorize keywords
+	for (var j = 0 ; j < keywords.length ; j++) {
+		sql_string = sql_string.replace(new RegExp(keywords[j], "g"), "<span class=\"sql_keyword\">" + keywords[j] + "</span>");
+	}
+	
+	// remove duplicates <br> (example (ORDER : OR, ORDER))
+	sql_string = sql_string.replace(new RegExp("(<br/>&nbsp;&nbsp;&nbsp;&nbsp;){2}", "g"), '<br/>&nbsp;&nbsp;&nbsp;&nbsp;');
 	
 	return sql_string;
 }
@@ -228,7 +241,7 @@ function processLog()
 		query_string = checkMulitpleQueries(log_lines.join("<br/>").split("# User@Host: "), date, i);
 		
 		// add formatted query tou the list
-		logdata[i].query_string = format_query(query_string);
+		logdata[i].query_string = query_string;
     }
 }
 
@@ -391,11 +404,11 @@ function printEntries()
 		var rs = line.insertCell(3);		
 			rs.innerHTML = logdata[i].rows_sent;
 		var re = line.insertCell(4);		
-			re.innerHTML = str_split(logdata[i].rows_examined, -3);
+			re.innerHTML = str_split(logdata[i].rows_examined, -3).join(' ');
 		var db = line.insertCell(5);		
 			db.innerHTML = logdata[i].db_name;
 		var qs = line.insertCell(6);		
-			qs.innerHTML = "<pre>" + logdata[i].query_string + "</pre>";
+			qs.innerHTML = "<code>" + format_query(logdata[i].query_string) + "</code>";
 		
 		table.appendChild(line);
 	}
@@ -467,13 +480,15 @@ function init()
 	}
 	
 	// SQL keyworks
-	keywordsInLine  = [
-		'SELECT', 'UPDATE', 'INSERT', 'ALTER', 'DELETE',
-		'AS', 'JOIN', 'COMMIT', 'USE', 'BY', 'ASC', 'DESC', 'ON', 'IN'
+	keywords  = [
+		'SELECT', 'UPDATE', 'INSERT', 'ALTER', 'DELETE', 'NULL', 'INTO',
+		'FROM', 'WHERE', 'AND', 'INNER', 'LEFT', 'ORDER', 'LIMIT', 'SET', 'GROUP',
+		'ASC', 'JOIN', 'COMMIT', 'USE', 'BY', 'DESC', 'HAVING', 'COUNT', 'DISTINCT',
+		'OR', 'IN', 'IS', 'AS', 'ON'
 	];
 	
 	// SQL keyworks which must be indented
-	keywordsNewLine = ['FROM', 'WHERE', 'AND', 'OR', 'INNER', 'LEFT', 'ORDER', 'LIMIT', 'SET'];
+	keywordsNewLine = ['FROM', 'WHERE', 'AND', 'ORDER', 'OR', 'INNER', 'LEFT', 'ORDER', 'LIMIT', 'SET', 'GROUP'];
 	
 	// upload stats
 	totalFiles = 0;
@@ -513,7 +528,7 @@ function updateListOfFiles(f)
 	// maj stats
 	totalFiles++;
 	totalSize += f.size;
-	totalEntries += logdata.length - 1; // -1 à cause du shift qui sera fait dans processLog()
+	totalEntries += logdata.length;
 	
 	// création de la liste des fichiers si elle n'existe pas
 	if (ul === null) {
@@ -546,9 +561,9 @@ function handleFile(files)
 			return function(e) {
 				if (e.target.readyState === FileReader.DONE) { 
 					logdata = e.target.result.split("# Time: "); 
+					processLog();
 					updateListOfFiles(f);
 					updateInfosBlock();
-					processLog();
 					plots.push({file: f.name, datas: plot()});
 					graphEntries(f);
 					printEntries();
@@ -708,9 +723,9 @@ function ajax_getFile()
 					f.type = "";
 
 					logdata = content.split("# Time: "); 
+					processLog();
 					updateListOfFiles(f);
 					updateInfosBlock();
-					processLog();
 					plots.push({file: f.name, datas: plot()});
 					graphEntries(f);
 					printEntries();
