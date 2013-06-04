@@ -1,5 +1,4 @@
 // global vars
-var fileList;
 var logdata;
 var timedata;
 var dayNames;
@@ -407,9 +406,14 @@ function printEntries()
 // -------------------------------------------------------------------- MISC ---
 
 /**
- * Update infos in the aside block displaying details of loaded files
+ * Met à jour le bloc d'informations contenant :
+ * <ul>
+ *  <li>le nombre de fichiers analysés</li>
+ *  <li>la taille des fichiers</li>
+ *  <li>le nombre de requêtes trouvées</li>
+ *  <li>l'intervalle de dates</li>
+ * </ul>
  * 
- * @returns void
  * @author Sylvain {26/04/2013}
  */
 function updateInfosBlock()
@@ -518,9 +522,6 @@ function updateListOfFiles(f)
 		dz.appendChild(ul);
 	}
 	
-	// status du parsage des logs
-	updateInfosBlock();
-	
 	// informations sur le fichier
 	li.innerHTML = f.name + " [" + f.size + " Bytes - (" + f.type + ")]";
 	ul.appendChild(li);
@@ -546,6 +547,7 @@ function handleFile(files)
 				if (e.target.readyState === FileReader.DONE) { 
 					logdata = e.target.result.split("# Time: "); 
 					updateListOfFiles(f);
+					updateInfosBlock();
 					processLog();
 					plots.push({file: f.name, datas: plot()});
 					graphEntries(f);
@@ -707,6 +709,7 @@ function ajax_getFile()
 
 					logdata = content.split("# Time: "); 
 					updateListOfFiles(f);
+					updateInfosBlock();
 					processLog();
 					plots.push({file: f.name, datas: plot()});
 					graphEntries(f);
