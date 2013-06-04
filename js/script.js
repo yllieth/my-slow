@@ -4,10 +4,8 @@ var timedata;
 var dayNames;
 var keywords;
 var keywordsNewLine;
-var totalFiles;
-var totalSize;
-var totalEntries;
 var plots;
+var stats;
 
 // ------------------------------------------------------------------ PARSER ---
 
@@ -206,10 +204,20 @@ function processLog()
 		
         // get stats
         entry_stats = log_lines[2].split(" ");
-        logdata[i].query_time    = entry_stats[2];  // query time
-        logdata[i].lock_time     = entry_stats[5];  // lock time
-        logdata[i].rows_sent     = entry_stats[8];  // rows sent
-        logdata[i].rows_examined = entry_stats[11]; // row examined
+        logdata[i].query_time    = parseInt(entry_stats[2]);  // query time
+        logdata[i].lock_time     = parseInt(entry_stats[5]);  // lock time
+        logdata[i].rows_sent     = parseInt(entry_stats[8]);  // rows sent
+        logdata[i].rows_examined = parseInt(entry_stats[11]); // row examined
+        
+        // update stats
+		if (logdata[i].query_time  < stats.query_time.min) stats.query_time.min = logdata[i].query_time;
+		if (logdata[i].query_time  > stats.query_time.max) stats.query_time.max = logdata[i].query_time;
+		if (logdata[i].lock_time  < stats.lock_time.min)  stats.lock_time.min  = logdata[i].lock_time;
+		if (logdata[i].lock_time  > stats.lock_time.max)  stats.lock_time.max  = logdata[i].lock_time;
+		if (logdata[i].rows_sent  < stats.rows_sent.min)  stats.rows_sent.min  = logdata[i].rows_sent;
+		if (logdata[i].rows_sent  > stats.rows_sent.max)  stats.rows_sent.max  = logdata[i].rows_sent;
+		if (logdata[i].rows_examined < stats.rows_read.min)  stats.rows_read.min  = logdata[i].rows_examined;
+		if (logdata[i].rows_examined > stats.rows_read.max)  stats.rows_read.max  = logdata[i].rows_examined;
         
         log_lines[0] = log_lines[0].replace('  ', ' ');
         date = str_split(log_lines[0].split(' ')[2],2);
@@ -218,19 +226,15 @@ function processLog()
         // parse date
         date = new Date("20" + date[0], date[1] - 1, date[2], time[0], time[1], time[2]);
         
-        var year      = date.getFullYear();
-        var month     = date.getUTCMonth() + 1;       if (month < 10) month = "0" + month;
-        var day       = date.getDate().toString();    if (day   < 10) day   = "0" + day;
-        var dayOfWeek = date.getDay();
-        var hours     = date.getHours().toString();   if (hours < 10) hours = "0" + hours;
-        var mins      = date.getMinutes().toString(); if (mins  < 10) mins  = "0" + mins;
+        var year  = date.getFullYear();
+        var month = date.getUTCMonth() + 1;       if (month < 10) month = "0" + month;
+        var day   = date.getDate().toString();    if (day   < 10) day   = "0" + day;
+        var hours = date.getHours().toString();   if (hours < 10) hours = "0" + hours;
+        var mins  = date.getMinutes().toString(); if (mins  < 10) mins  = "0" + mins;
         
         logdata[i].dateObj = date; // date
         logdata[i].date = year + "/" + month + "/" + day + " " + hours + ":" + mins;
         logdata[i].hour = hours;
-        
-        // time stats
-		timedata[dayOfWeek][hours] = (timedata[dayOfWeek][hours] === undefined) ? 1 : timedata[dayOfWeek][hours] + 1;
 		
         // isolate query
         log_lines.shift();
@@ -415,6 +419,11 @@ function graphEntries(f)
 		}
 	}
 	
+	// update stats
+	stats.max_nb_query = ymax;
+	stats.interval.min = xmin;
+	stats.interval.max = xmax;
+	
 	// add scales to the graph
 	var y_scale_size = graph_y_scales(g_yscale, ymin, ymax, 0, x);
 	
@@ -498,13 +507,21 @@ function printEntries()
  */
 function updateInfosBlock()
 {
-	var st = document.getElementById('fileInfos');		// information sur le status du parsage (<aside>)
+	var infos = document.getElementById('fileInfos');		// information sur le status du parsage (<aside>)
+	var start = new Date(stats.interval.min);
+	var end   = new Date(stats.interval.max);
 	
-	st.style.display = 'block';	// affiche le bloc
-	st.innerHTML = "<table>"
-				 + "<tr><td>Files :   </td><td>" + totalFiles + "</td></tr>"
-				 + "<tr><td>Size :    </td><td>" + str_split(totalSize.toString(),-3).join(' ') + " Bytes</td></tr>"
-				 + "<tr><td>Entries : </td><td>" + str_split(totalEntries.toString(),-3).join(' ') + "</td></tr>"
+	infos.style.display = 'block';	// affiche le bloc
+	infos.innerHTML = "<table>"
+				 + "<tr><td>Files :   </td><td>" + stats.totalFiles + "</td></tr>"
+				 + "<tr><td>Size :    </td><td>" + str_split(stats.totalSize.toString(),-3).join(' ') + " Bytes</td></tr>"
+				 + "<tr><td>Entries : </td><td>" + str_split(stats.totalEntries.toString(),-3).join(' ') + "</td></tr>"
+				 + "<tr><td>Max slow queries : </td><td>" + stats.max_nb_query + " (1h)</td></tr>"
+				 + "<tr><td>Interval : </td><td>" + start.toLocaleString() + "<br/>" + end.toLocaleString() + "</td></tr>"
+				 + "<tr><td>Query time : </td><td>" + stats.query_time.min + "s > " + stats.query_time.max + "s</td></tr>"
+				 + "<tr><td>Lock time : </td><td>" + stats.lock_time.min + "s > " + stats.lock_time.max + "s</td></tr>"
+				 + "<tr><td>Rows sent : </td><td>" + stats.rows_sent.min + " > " + str_split(stats.rows_sent.max, -3).join(' ') + "</td></tr>"
+				 + "<tr><td>Rows examined : </td><td>" + stats.rows_read.min + " > " + str_split(stats.rows_read.max, -3).join(' ') + "</td></tr>"
 				 + "</table>"
 }
 
@@ -558,9 +575,18 @@ function init()
 	keywordsNewLine = ['FROM', 'WHERE', 'AND', 'ORDER', 'OR', 'INNER', 'LEFT', 'ORDER', 'LIMIT', 'SET', 'GROUP'];
 	
 	// upload stats
-	totalFiles = 0;
-	totalSize = 0;
-	totalEntries = 0;
+	stats = {
+		totalFiles:   0,				// nombre total de fichiers lus
+		totalSize:    0,				// nombre total d'octets des fichiers lus
+		totalEntries: 0,				// nombre total de slow-queries
+		max_nb_query: 0,				// nombre maximum de slow-queries sur une période
+		query_time:   {min: 0, max: 0},
+		lock_time:    {min: 0, max: 0},
+		rows_sent:    {min: 0, max: 0},
+		rows_read:    {min: 0, max: 0},
+		efficency:    {min: 0, max: 0},
+		interval:     {min: 0, max: 0}
+	};
 	
 	// initialize plot
 	plots = [];
@@ -593,9 +619,9 @@ function updateListOfFiles(f)
 	var li = document.createElement('li');
 	
 	// maj stats
-	totalFiles++;
-	totalSize += f.size;
-	totalEntries += logdata.length;
+	stats.totalFiles++;
+	stats.totalSize += f.size;
+	stats.totalEntries += logdata.length;
 	
 	// création de la liste des fichiers si elle n'existe pas
 	if (ul === null) {
@@ -630,10 +656,10 @@ function handleFile(files)
 					logdata = e.target.result.split("# Time: "); 
 					processLog();
 					updateListOfFiles(f);
-					updateInfosBlock();
 					plots.push({file: f.name, datas: plot()});
 					graphEntries(f);
 					printEntries();
+					updateInfosBlock();
 				}
 			};
 		})(f);
@@ -792,10 +818,10 @@ function ajax_getFile()
 					logdata = content.split("# Time: "); 
 					processLog();
 					updateListOfFiles(f);
-					updateInfosBlock();
 					plots.push({file: f.name, datas: plot()});
 					graphEntries(f);
 					printEntries();
+					updateInfosBlock();
 
 				} else {
 					alert("Error : " + xhr.statusText);
