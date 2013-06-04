@@ -6,6 +6,7 @@ Cette application parse un fichier de log de `slow-queries` généré par MySQL 
 * une liste détaillant les requêtes incriminées
 
 Elle est basée sur [https://code.google.com/p/mysql-slow-query-log-visualizer/](https://code.google.com/p/mysql-slow-query-log-visualizer/).
+
 Les différences par rapport à ce projet de base sont :
 * la possibilité de lire un fichier sur le serveur sur lequel l'application est installée (et non uniquement depuis un fichier local)
 * des corrections du parser
@@ -14,8 +15,7 @@ Les différences par rapport à ce projet de base sont :
 
 ![](img/preview.png?raw=true)
 
-Installation
-------------
+# Installation
 
 Pour utiliser cette application sur votre serveur, il suffit de 
 
@@ -24,12 +24,11 @@ Pour utiliser cette application sur votre serveur, il suffit de
 	* `/document-root/your-path/index.html`
 	* `/document-root/your-path/index.html?remote_path=/var/log/mysql` pour pré-remplir le chemin du dossier où se trouvent les fichiers de log à analyser sur une serveur distant
 
-Notes de développement
-----------------------
+# Notes de développement
 
 **Toujours en phase de développement.**
 
-# Technologies
+## Technologies
 
 * [HTML5] `Drag & Drop` pour l'upload des fichiers de log
 * [HTML5] `XmlHttpRequest` pour récupérer les fichiers de log
@@ -37,15 +36,13 @@ Notes de développement
 * [HTML5] `svg` pour le dessin du graph
 * [CSS3]  box-shadow
 
-Le code javascript ne fait aucune référence à la bibliothèque `JQuery`
-
-# Compatibilité
+## Compatibilité
 
 Cette application est testée fonctionnelle sur les navigateurs suivants :
 * Chromium (Version 25.0.1364.160 Ubuntu 13.04 (25.0.1364.160-0ubuntu3))
 * Chrome (Version 27.0.1453.93)
 
-# TODO list
+## TODO list
 
 * Améliorer la compatibilité entre les navigateurs
 * Afficher les échelles du graphique

@@ -12,6 +12,14 @@ var plots;
 
 // ------------------------------------------------------------------ PARSER ---
 
+/**
+ * Découpe une chaîne de caratères en blocs de <code>split_length</code> caractères.
+ * 
+ * @see https://github.com/kvz/phpjs
+ * @param String string    Chaîne à découper
+ * @param int split_length Nombre de caratères des blocs (>0 : on part à partir du premier caractère, <0 : on part à partir du dernier caractère)
+ * @returns {Array}
+ */
 function str_split(string, split_length)
 {
 	// http://kevin.vanzonneveld.net
@@ -22,6 +30,7 @@ function str_split(string, split_length)
 	// +        input by: Bjorn Roesbeke (http://www.bjornroesbeke.be/)
 	// +      revised by: Rafał Kukawski (http://blog.kukawski.pl/)
 	// +     improved by: Sylvain RAGOT
+	// +      revised by: Sylvain RAGOT (Always return an array)
 	// *       example 1: str_split('Hello World', 3);
 	// *       returns 1: ['Hel', 'lo ', 'Wor', 'ld']
 	// *       example 2: str_split('Hello World', -3);
@@ -30,7 +39,7 @@ function str_split(string, split_length)
 		split_length = 1;
 	}
 	if (string === null) {
-		return false;
+		return [];
 	}
 	string += '';
 	if (split_length >= 0) {
@@ -264,7 +273,7 @@ function plot()
 	return plot;
 }
 
-function graphEntriesFrom(f)
+function graphEntries(f)
 {
 	// list of color for styling each curve
 	var color = ['white', 'yellow', 'blue', 'red'];
@@ -546,7 +555,7 @@ function handleFile(files)
 					updateListOfFiles(f);
 					processLog();
 					plots.push({file: f.name, datas: plot()});
-					graphEntriesFrom(f);
+					graphEntries(f);
 					printEntries();
 				}
 			};
@@ -601,6 +610,33 @@ function setListeners()
 
 // ----------------------------------------------------------- REMOTE UPLOAD ---
 
+/**
+ * Récupère tous les fichiers d'un dossier et les met en forme.<br/><br/>
+ * 
+ * L'application dispose d'un champ permettant d'aller inspecter le contenu d'un
+ * dossier sur le serveur sur lequel elle est installée afin d'en récupérer tous
+ * les fichier qu'il contient. <br/>
+ * Lorsque la valeur de ce champ change, cela déclenche l'évènement <code>change</code>
+ * qui exécute cette fonction.
+ * 
+ * <h3>Récupération des fichiers</h3>
+ * La récupération des fichiers se fait en AJAX, en appelant un script PHP (voir
+ * <code>/php/fetchListOfFiles.php</code>).<br/>
+ * Ce script renvoie un objet JSON contenant, la liste de tous les fichiers du
+ * dossier. Cette liste est obtenue par la commande <code>ls -lh</code> et ne 
+ * garde que les entrées qui commencent par un '-', c'est à dire les fichiers
+ * standard (on exclue les dossiers, et autres fichiers spéciaux).
+ * 
+ * <h3>Mise en forme</h3>
+ * Pour chacun des fichiers récupérés, on va créer une <code>div</code> contenant :
+ * <ul>
+ *  <li>une case à cocher pour parser ce fichier</li>
+ *  <li>le détail complet du fichier (droits, taille, date de modification, nom, 
+ *      ... que le fournit la commande <code>ls -l</code>)</li>
+ * </ul>
+ * 
+ * @author Sylvain
+ */
 function ajax_getList()
 {
 	init();
@@ -648,6 +684,13 @@ function ajax_getList()
 	xhr.send("path=" + path);
 }
 
+/**
+ * Récupère le fichier sélectionné (<code>ajax_getList()</code>) et l'analyse.<br/><br/>
+ * 
+ * Cette fonction est déclenché lorsqu'un case à cocher d'un fichier est cochée.
+ * 
+ * @author Sylvain
+ */
 function ajax_getFile()
 {
 	if (this.checked === true) {
@@ -673,7 +716,8 @@ function ajax_getFile()
 					updateListOfFiles(f);
 					processLog();
 					plots.push({file: f.name, datas: plot()});
-					graphEntriesFrom(f);
+					graphEntries(f);
+					printEntries();
 
 				} else {
 					alert("Error : " + xhr.statusText);
@@ -682,6 +726,4 @@ function ajax_getFile()
 		};
 		xhr.send("file=" + filePath);
 	}
-	
-//	alert(this.checked);
 }

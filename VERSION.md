@@ -22,5 +22,5 @@ CHANGELOG
 	* indentation
 
 * Graphique :
-	* svg
+	* utilise `svg`
 	* ne supperpose pas les graphs
