@@ -279,6 +279,65 @@ function plot()
 	return plot;
 }
 
+/**
+ * Dessine l'échelle des ordonnées.<br/><br/>
+ * 
+ * Pour dessiner les traits, on part du principe qu'on en veut 10 (<code>nb_traits</code>).
+ * Il faut alor calculer l'écart entre les trait pour répartir ces 10 traits en fonction de la taille du graphique :<br/>
+ * ymax = 187 : 187 / 10 traits = 18.7 => on espace les traits de 20 px.<br/>
+ * ymax = 1870 : 1870 / 10 traits = 187 => on espace les traits de 200 px.
+ * 
+ * @param {SVGAnimatedString} g groupe qui doit contenir les éléments de l'échelle des ordonnées (les traits + les textes)
+ * @param {Number} ymin Valeur minimum des ordonnées
+ * @param {Number} ymax Valeur maximum des ordonnées
+ * @param {Number} xmin Valeur minimum des absices
+ * @param {Number} xmax Valeur maximum des absices
+ * @returns {Number} taille (verticale, en pixel) que prend l'échelle (elle sera redimensionnée pour rentrer dans le cadre)
+ */
+function graph_y_scales(g, ymin, ymax, xmin, xmax)
+{
+	// initialisation
+	var step = 0;
+	var i = 0;
+	var delta = ymax - ymin;
+	var nb_traits = 10;
+	var a = delta / nb_traits; // le dernier trait sera en dessous du dernier point
+	
+	// calcul le pas de progression (entre 2 traits)
+	while (step == 0 && i < 10) {
+		var b = Math.pow(10,i);
+		var c = a / b;
+		if (c > b){
+			step = 0;
+			i++;
+		} else {
+			step = (i+1) * b;
+		}
+	}
+	
+	// dessine les traits
+	for (var j = 0 ; j < nb_traits ; j++) {
+		var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+			line.setAttribute('x1', xmin);
+			line.setAttribute('x2', xmax);
+			line.setAttribute('y1', j * step);
+			line.setAttribute('y2', j * step);
+			line.setAttribute('style', 'stroke:#666;stroke-width:1')
+			
+		var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+			text.setAttribute('x', 10);
+			text.setAttribute('y', j * step);
+			text.setAttribute('fill', 'white');
+		var textNode = document.createTextNode((nb_traits) * step - j * step);
+			text.appendChild(textNode);
+		
+		g.appendChild(line);
+		g.appendChild(text);
+	}
+	
+	return nb_traits * step;	// hauteur nécessaire pour afficher l'echelle des ordonnées
+}
+
 function graphEntries(f)
 {
 	// list of color for styling each curve
@@ -299,9 +358,12 @@ function graphEntries(f)
 			g_curves.setAttribute('id','curves');
 		var g_points = document.createElementNS("http://www.w3.org/2000/svg", "g");
 			g_points.setAttribute('id','points');
+		var g_yscale = document.createElementNS("http://www.w3.org/2000/svg", "g");
+			g_yscale.setAttribute('id','yscale');
 		
 		svg.appendChild(g_curves);
 		svg.appendChild(g_points);
+		svg.appendChild(g_yscale);
 	}
 	
 	var xStep = 50;	// espace (en pixel) entre 2 points
@@ -338,6 +400,7 @@ function graphEntries(f)
 					point.setAttribute('cy', y);
 					point.setAttribute('r', 4);
 					point.setAttribute('fill', color[i % color.length]);
+					point.setAttribute('title', n);
 				g_points.appendChild(point);
 			}
 
@@ -352,6 +415,9 @@ function graphEntries(f)
 		}
 	}
 	
+	// add scales to the graph
+	var y_scale_size = graph_y_scales(g_yscale, ymin, ymax, 0, x);
+	
 	// resize graph zone
 	var availableWidth = svg.offsetWidth;
 	var requiredWidth = j * xStep - xStep;
@@ -365,6 +431,7 @@ function graphEntries(f)
 	
 	g_curves.setAttribute('transform', 'scale(' + xscale + ' ' + yscale + ')');
 	g_points.setAttribute('transform', 'scale(' + xscale + ' ' + yscale + ')');
+	g_yscale.setAttribute('transform', 'scale(' + xscale + ' ' + availableHeight / y_scale_size + ')');
 }
 
 // ------------------------------------------------------------------- LISTE ---
